@@ -122,8 +122,10 @@ export default function ShipMap({ stops }: { stops: MapStop[] }) {
       });
 
       if (path.length > 0) {
+        // Generous padding so the current-position marker and its label
+        // never sit clipped at the map edge.
         map.fitBounds(L.latLngBounds(path.map((p) => L.latLng(p[0], p[1]))), {
-          padding: [50, 50],
+          padding: [80, 80],
           maxZoom: 6,
         });
       } else {
