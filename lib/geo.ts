@@ -70,7 +70,7 @@ const IN_PORT_RE =
  * e.g. "operating in the Philippine Sea after visiting Guam last week".
  */
 export function findPortCallMention(text: string): string | null {
-  if (!/visit(ed|ing)?|port call|pulled into|arrived (in|at)/i.test(text)) return null;
+  if (!/visit(ed|ing)?|port call|pulled into|arrived (in|at)|depart(s|ed|ing)|underway from|left port/i.test(text)) return null;
   const port = PORTS.find((p) => p.pattern.test(text));
   return port ? port.name : null;
 }
