@@ -18,9 +18,12 @@ export type Intensity = {
   drivers: Driver[]; // the stories that moved the needle, strongest first
 };
 
+export type IntensitySnapshot = Intensity & {
+  asOf: string; // ISO, end of the 14-day window
+};
+
 /** Keyword weights applied to recent Navy headlines/summaries. */
 const SIGNALS: { pattern: RegExp; weight: number }[] = [
-  // conflict signals
   { pattern: /missile|rocket attack|air ?strike|drone attack/i, weight: 14 },
   { pattern: /\battack(s|ed|ing)?\b|\bstrike(s|d)? (on|against)\b/i, weight: 12 },
   { pattern: /shot down|shoot down|intercept(ed|s)?\b/i, weight: 10 },
@@ -33,7 +36,6 @@ const SIGNALS: { pattern: RegExp; weight: number }[] = [
   { pattern: /tension|contested|provocat|incursion|aggress/i, weight: 6 },
   { pattern: /warning|threat(en)?/i, weight: 4 },
   { pattern: /scrambl(e|ed)|close encounter|unsafe (maneuver|intercept)/i, weight: 6 },
-  // de-escalation / routine signals
   { pattern: /port visit|port call|goodwill|friendship/i, weight: -6 },
   { pattern: /\bexercise\b|\bdrill(s)?\b|training/i, weight: -4 },
   { pattern: /ceremony|commission(ed|ing)|christen/i, weight: -5 },
@@ -44,6 +46,8 @@ const SIGNALS: { pattern: RegExp; weight: number }[] = [
 ];
 
 const BASELINE = 22;
+const WINDOW_MS = 14 * 24 * 3600 * 1000;
+const HISTORY_WEEKS = 26;
 
 function levelFor(score: number): { level: IntensityLevel; label: string; color: string } {
   if (score < 30) return { level: "calm", label: "Calm", color: "#16a34a" };
@@ -53,7 +57,7 @@ function levelFor(score: number): { level: IntensityLevel; label: string; color:
 }
 
 /**
- * Score recent Navy news into a 0-100 "conflict intensity" reading.
+ * Score Navy news into a 0-100 "conflict intensity" reading.
  * Stories that mention the ship itself count double.
  */
 export function computeIntensity(news: NewsItem[]): Intensity {
@@ -80,15 +84,34 @@ export function computeIntensity(news: NewsItem[]): Intensity {
   let headline: string;
   if (level === "calm") {
     headline = top && top.weight < 0
-      ? "Routine operations — recent news is about exercises, port visits, and partnerships."
-      : "Quiet week — nothing in recent Navy news points to active conflict.";
+      ? "Routine operations — news is about exercises, port visits, and partnerships."
+      : "Quiet stretch — nothing in Navy news that week points to active conflict.";
   } else if (level === "watchful") {
     headline = "Mostly routine, with a few stories worth keeping an eye on.";
   } else if (level === "elevated") {
-    headline = "Multiple recent stories describe tension or confrontations in the region.";
+    headline = "Multiple stories describe tension or confrontations in the region.";
   } else {
-    headline = "Recent news describes active strikes or attacks involving naval forces.";
+    headline = "News that week describes active strikes or attacks involving naval forces.";
   }
 
   return { score, level, label, color, headline, drivers: drivers.slice(0, 5) };
+}
+
+/** Weekly readings for the last ~6 months, oldest first. */
+export function computeIntensityHistory(news: NewsItem[]): IntensitySnapshot[] {
+  const now = Date.now();
+  const snapshots: IntensitySnapshot[] = [];
+  for (let i = HISTORY_WEEKS - 1; i >= 0; i--) {
+    const end = now - i * 7 * 24 * 3600 * 1000;
+    const start = end - WINDOW_MS;
+    const window = news.filter((n) => {
+      const t = new Date(n.date).getTime();
+      return t <= end && t > start;
+    });
+    snapshots.push({
+      asOf: new Date(end).toISOString(),
+      ...computeIntensity(window),
+    });
+  }
+  return snapshots;
 }
