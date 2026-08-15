@@ -1,12 +1,15 @@
 import { getShipStatus } from "@/lib/fleet";
-import { getNews } from "@/lib/news";
+import { getNews, getNewsArchive } from "@/lib/news";
 import { buildStops } from "@/lib/geo";
-import { computeIntensity } from "@/lib/intensity";
-import { SHIP, AIR_WING, ESCORTS, deriveDeployment } from "@/lib/ship";
+import { computeIntensityHistory } from "@/lib/intensity";
+import { SHIP, SHIP_LEADERS, ESCORTS, deriveDeployment } from "@/lib/ship";
+import { getShipPhotos } from "@/lib/photos";
 import { summarize } from "@/lib/text";
 import MapPanel from "./components/MapPanel";
-import Gauge from "./components/Gauge";
+import IntensityPanel from "./components/IntensityPanel";
 import CarrierDiagram from "./components/CarrierDiagram";
+import PhotoStrip from "./components/PhotoStrip";
+import Squadrons from "./components/Squadrons";
 
 export const revalidate = 1800; // refresh data every 30 minutes
 
@@ -28,11 +31,16 @@ function shortDate(iso: string): string {
 }
 
 export default async function Home() {
-  const [status, news] = await Promise.all([getShipStatus(), getNews(14)]);
+  const [status, news, archive, photos] = await Promise.all([
+    getShipStatus(),
+    getNews(14),
+    getNewsArchive(),
+    getShipPhotos(),
+  ]);
   const stops = status ? buildStops(status.history) : [];
   const current = stops[stops.length - 1] ?? null;
   const deployment = deriveDeployment(stops);
-  const intensity = computeIntensity(news);
+  const intensityHistory = computeIntensityHistory(archive);
 
   return (
     <main className="wrap">
@@ -92,26 +100,7 @@ export default async function Home() {
           </section>
         )}
 
-        <section className="card">
-          <h2 className="card-title">Conflict intensity</h2>
-          <Gauge intensity={intensity} />
-          <p className="blurb">{intensity.headline}</p>
-          {intensity.drivers.length > 0 && (
-            <details>
-              <summary>What&apos;s moving the needle</summary>
-              <ul className="drivers">
-                {intensity.drivers.map((d) => (
-                  <li key={d.link}>
-                    <span className={d.weight > 0 ? "up" : "down"}>
-                      {d.weight > 0 ? "▲" : "▼"}
-                    </span>
-                    <a href={d.link}>{d.title}</a>
-                  </li>
-                ))}
-              </ul>
-            </details>
-          )}
-        </section>
+        <IntensityPanel history={intensityHistory} />
       </div>
 
       {/* ── Deployment status ──────────────────────────────── */}
@@ -122,15 +111,19 @@ export default async function Home() {
             <div className="stat">
               <span className="stat-value">{deployment.statusLabel}</span>
               <span className="stat-label">
-                {deployment.currentSince
-                  ? `since ${shortDate(deployment.currentSince)}`
+                {deployment.patrolSince
+                  ? `on patrol since ${shortDate(deployment.patrolSince)}${
+                      deployment.lastHomeportName
+                        ? ` · left ${deployment.lastHomeportName}`
+                        : ""
+                    }`
                   : "current status"}
               </span>
             </div>
-            {deployment.atSea && deployment.weeksSincePort != null && (
+            {deployment.atSea && deployment.weeksOnPatrol != null && (
               <div className="stat">
-                <span className="stat-value">{deployment.weeksSincePort} wk</span>
-                <span className="stat-label">underway since last port</span>
+                <span className="stat-value">{deployment.weeksOnPatrol} wk</span>
+                <span className="stat-label">on this patrol from Japan</span>
               </div>
             )}
             {deployment.lastPortName && (
@@ -139,7 +132,15 @@ export default async function Home() {
                   {deployment.lastPortDate ? shortDate(deployment.lastPortDate) : "—"}
                 </span>
                 <span className="stat-label">
-                  last docked · {deployment.lastPortName}
+                  last port call · {deployment.lastPortName}
+                </span>
+              </div>
+            )}
+            {deployment.atSea && deployment.locationSince && (
+              <div className="stat">
+                <span className="stat-value">{shortDate(deployment.locationSince)}</span>
+                <span className="stat-label">
+                  this location · {current?.placeName}
                 </span>
               </div>
             )}
@@ -154,7 +155,8 @@ export default async function Home() {
       {/* ── The ship ───────────────────────────────────────── */}
       <section className="card">
         <h2 className="card-title">The ship</h2>
-        {status?.photo && (
+        <PhotoStrip photos={photos} />
+        {photos.length === 0 && status?.photo && (
           <figure className="photo">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={status.photo.src} alt={status.photo.caption} />
@@ -168,6 +170,14 @@ export default async function Home() {
           <div className="stat"><span className="stat-value">1,092 ft</span><span className="stat-label">length</span></div>
           <div className="stat"><span className="stat-value">30+ kt</span><span className="stat-label">top speed, nuclear-powered</span></div>
         </div>
+        <ul className="sq-leaders ship-leaders">
+          {SHIP_LEADERS.map((p) => (
+            <li key={p.name}>
+              <strong>{p.name}</strong>
+              <span>{p.role}</span>
+            </li>
+          ))}
+        </ul>
         <details>
           <summary>All specs</summary>
           <dl className="specs">
@@ -183,29 +193,16 @@ export default async function Home() {
         </details>
       </section>
 
-      {/* ── Who flies off it ───────────────────────────────── */}
+      <Squadrons />
       <section className="card">
-        <h2 className="card-title">Who&apos;s on board — {AIR_WING.name}</h2>
-        <p className="blurb">{AIR_WING.base}.</p>
-        <div className="squadrons">
-          {AIR_WING.squadrons.map((sq) => (
-            <div className="squadron" key={sq.id}>
-              <strong>{sq.id} “{sq.nickname}”</strong>
-              <span>{sq.aircraft}</span>
-              <small>{sq.role}</small>
-            </div>
+        <h2 className="card-title">Ships sailing with the carrier</h2>
+        <ul className="escorts">
+          {ESCORTS.map((e) => (
+            <li key={e.hull}>
+              <strong>{e.name} ({e.hull})</strong> — {e.type}
+            </li>
           ))}
-        </div>
-        <details>
-          <summary>Ships sailing with the carrier</summary>
-          <ul className="escorts">
-            {ESCORTS.map((e) => (
-              <li key={e.hull}>
-                <strong>{e.name} ({e.hull})</strong> — {e.type}
-              </li>
-            ))}
-          </ul>
-        </details>
+        </ul>
       </section>
 
       {/* ── News ───────────────────────────────────────────── */}
@@ -241,9 +238,10 @@ export default async function Home() {
           <a href="https://news.usni.org/tag/western-pacific-pulse">
             Western Pacific Pulse
           </a>{" "}
-          (independent public sources — not official Navy data). Current
-          position uses the newest report; Pulse map pins are used when
-          available. Positions are approximate. Photos: U.S. Navy.
+          (independent public sources — not official Navy data). Aircraft
+          counts are typical embarked numbers; named aircrew are publicly
+          listed leaders only. Photos: U.S. Navy via USNI News, DVIDS, and
+          Wikimedia Commons.
         </p>
       </footer>
     </main>
