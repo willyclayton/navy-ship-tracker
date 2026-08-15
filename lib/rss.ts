@@ -75,3 +75,22 @@ export async function fetchPage(
     return null;
   }
 }
+
+export async function fetchJson<T>(
+  url: string,
+  revalidateSeconds = 1800
+): Promise<T | null> {
+  try {
+    const res = await fetch(url, {
+      headers: {
+        ...FETCH_HEADERS,
+        accept: "application/json, text/plain, */*",
+      },
+      next: { revalidate: revalidateSeconds },
+    });
+    if (!res.ok) return null;
+    return (await res.json()) as T;
+  } catch {
+    return null;
+  }
+}
