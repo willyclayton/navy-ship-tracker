@@ -26,6 +26,7 @@ export type HistoryEntry = {
   region: string;
   url: string;
   title: string;
+  summary: string[]; // paragraphs about the ship from that week's tracker
 };
 
 type RawItem = {
@@ -138,6 +139,7 @@ export async function getShipStatus(): Promise<ShipStatus | null> {
       region: section.region,
       url: item.link,
       title: item.title,
+      summary: shipParagraphs(section.html),
     });
     if (!current) {
       current = {
@@ -152,5 +154,5 @@ export async function getShipStatus(): Promise<ShipStatus | null> {
   }
 
   if (!current) return null;
-  return { ...current, history: history.slice(0, 10) };
+  return { ...current, history };
 }

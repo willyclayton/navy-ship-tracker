@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "USS George Washington — Where is she now?",
+  title: "USS George Washington — Live Tracker",
   description:
-    "Weekly position of USS George Washington (CVN-73) from the USNI News Fleet Tracker, plus Navy news in plain language.",
+    "Interactive map of USS George Washington (CVN-73): where she is, where she's been, a conflict-intensity dial, and the ship's crew and air wing at a glance.",
 };
 
 export default function RootLayout({
