@@ -26,7 +26,7 @@ export default function IntensityPanel({
     if (history.length === 0) return "";
     const w = 260;
     const h = 36;
-    const max = Math.max(40, ...history.map((s) => s.score));
+    const max = 100;
     const pts = history.map((s, i) => {
       const x = (i / Math.max(1, history.length - 1)) * w;
       const y = h - (s.score / max) * (h - 4) - 2;
@@ -44,6 +44,7 @@ export default function IntensityPanel({
       <p className="blurb">{snap.headline}</p>
       <p className="intensity-when">
         {isNow ? "Now" : shortDate(snap.asOf)} · last 14 days of Navy headlines
+        · 100 = all-out war
       </p>
       {history.length > 1 && (
         <div className="intensity-scrub">
@@ -58,7 +59,7 @@ export default function IntensityPanel({
                 cx={(idx / Math.max(1, history.length - 1)) * 260}
                 cy={
                   36 -
-                  (snap.score / Math.max(40, ...history.map((s) => s.score))) *
+                  (snap.score / 100) *
                     32 -
                   2
                 }

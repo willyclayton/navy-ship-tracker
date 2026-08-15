@@ -33,7 +33,7 @@ export default function Gauge({ intensity }: { intensity: Intensity }) {
         />
         {/* tick labels */}
         <text x="16" y="115" className="gauge-tick">calm</text>
-        <text x="184" y="115" className="gauge-tick" textAnchor="end">conflict</text>
+        <text x="184" y="115" className="gauge-tick" textAnchor="end">all-out war</text>
         {/* needle */}
         <g transform={`rotate(${angle} 100 100)`}>
           <line x1="100" y1="100" x2="100" y2="28" stroke="#1f2937" strokeWidth="3.5" strokeLinecap="round" />
