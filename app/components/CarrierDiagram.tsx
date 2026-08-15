@@ -45,7 +45,8 @@ export default function CarrierDiagram() {
         {/* callouts */}
         <g className="callout">
           <line x1="608" y1="40" x2="680" y2="24" />
-          <text x="686" y="28">Island — bridge &amp; flight control</text>
+          <text x="686" y="16">Island — bridge</text>
+          <text x="686" y="34">&amp; flight control</text>
         </g>
         <g className="callout">
           <line x1="120" y1="118" x2="96" y2="72" />
