@@ -1,5 +1,5 @@
 import { fetchPage } from "./rss";
-import { decodeEntities, stripTags } from "./text";
+import { decodeEntities, stripTags, summarize } from "./text";
 
 // The category feed holds a deep archive of tracker posts; the main feed is
 // often fresher at CDN edges. Merge both so we always have the newest tracker.
@@ -26,6 +26,7 @@ export type HistoryEntry = {
   region: string;
   url: string;
   title: string;
+  blurb: string;
 };
 
 type RawItem = {
@@ -138,6 +139,7 @@ export async function getShipStatus(): Promise<ShipStatus | null> {
       region: section.region,
       url: item.link,
       title: item.title,
+      blurb: summarize(shipParagraphs(section.html)[0] ?? "", 200),
     });
     if (!current) {
       current = {
@@ -152,5 +154,5 @@ export async function getShipStatus(): Promise<ShipStatus | null> {
   }
 
   if (!current) return null;
-  return { ...current, history: history.slice(0, 10) };
+  return { ...current, history: history.slice(0, 16) };
 }
