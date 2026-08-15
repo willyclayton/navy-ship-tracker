@@ -13,16 +13,16 @@ export type NewsItem = {
 // USNI is the primary source; the others are capped so they add variety
 // without drowning out the fleet-tracker coverage.
 const FEEDS: { url: string; source: string; cap: number }[] = [
-  { url: "https://news.usni.org/feed", source: "USNI News", cap: 8 },
+  { url: "https://news.usni.org/feed", source: "USNI News", cap: 18 },
   {
     url: "https://www.navytimes.com/arc/outboundfeeds/rss/category/news/your-navy/?outputType=xml",
     source: "Navy Times",
-    cap: 3,
+    cap: 6,
   },
   {
     url: "https://www.defensenews.com/arc/outboundfeeds/rss/category/naval/?outputType=xml",
     source: "Defense News",
-    cap: 3,
+    cap: 6,
   },
 ];
 

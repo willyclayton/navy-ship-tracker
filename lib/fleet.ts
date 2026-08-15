@@ -1,3 +1,4 @@
+import { findRegionsInText } from "./coords";
 import { fetchPage } from "./rss";
 import { decodeEntities, stripTags, summarize } from "./text";
 
@@ -7,7 +8,7 @@ const FEEDS = [
   "https://news.usni.org/category/fleet-tracker/feed",
   "https://news.usni.org/feed",
 ];
-const SHIP_PATTERN = /George Washington/i;
+const SHIP_PATTERN = /George Washington|CVN-?\s?73/i;
 
 export type ShipPhoto = { src: string; caption: string };
 
@@ -15,9 +16,10 @@ export type ShipStatus = {
   region: string;
   summary: string[];
   photo: ShipPhoto | null;
-  asOf: string; // ISO date of the tracker post
+  asOf: string; // ISO date of the source report
   articleTitle: string;
   articleUrl: string;
+  source: string; // e.g. "USNI Fleet Tracker" or "USNI News report"
   history: HistoryEntry[];
 };
 
@@ -112,6 +114,53 @@ function shipPhoto(sectionHtml: string): ShipPhoto | null {
   return null;
 }
 
+// Verbs that indicate a sentence is describing where the ship is or moved to.
+const POSITION_VERBS =
+  /\b(is|was|were|are)\s+(currently\s+)?(in|operating|underway|steaming|sailing)\b|\btransit(ed|ing)\b|\benter(ed|ing)?\s+the\b|\barriv(ed|ing)\s+(in|at|off)\b/i;
+
+type PositionReport = {
+  date: string;
+  region: string;
+  url: string;
+  title: string;
+  blurb: string;
+};
+
+/**
+ * The weekly tracker is a Monday snapshot; USNI's day-to-day reporting is
+ * often fresher. Scan non-tracker articles for sentences that place the
+ * carrier somewhere and return the newest such report. Matching is done
+ * per sentence so escort-ship stories don't get attributed to the carrier,
+ * and the LAST region in the sentence wins ("transited the Malacca Strait
+ * to enter the Andaman Sea" → Andaman Sea).
+ */
+function findLatestReport(items: RawItem[]): PositionReport | null {
+  for (const item of items) {
+    const paragraphs = (item.content.match(/<p[\s>][\s\S]*?<\/p>/gi) ?? []).map(
+      (p) => stripTags(p)
+    );
+    for (const paragraph of paragraphs) {
+      if (!SHIP_PATTERN.test(paragraph)) continue;
+      const sentences = paragraph.split(/(?<=[.!?])\s+(?=[A-Z“"])/);
+      for (const sentence of sentences) {
+        if (!SHIP_PATTERN.test(sentence) || !POSITION_VERBS.test(sentence))
+          continue;
+        const regions = findRegionsInText(sentence);
+        if (regions.length === 0) continue;
+        const { display } = regions[regions.length - 1].region;
+        return {
+          date: item.pubDate,
+          region: `In ${display}`,
+          url: item.link,
+          title: item.title,
+          blurb: summarize(sentence, 240),
+        };
+      }
+    }
+  }
+  return null;
+}
+
 export async function getShipStatus(): Promise<ShipStatus | null> {
   const feeds = await Promise.all(FEEDS.map((url) => fetchPage(url, 1800)));
 
@@ -149,10 +198,37 @@ export async function getShipStatus(): Promise<ShipStatus | null> {
         asOf: item.pubDate,
         articleTitle: item.title,
         articleUrl: item.link,
+        source: "USNI Fleet Tracker",
       };
     }
   }
 
   if (!current) return null;
+
+  // Prefer a fresher position from day-to-day reporting when one exists.
+  const report = findLatestReport(
+    [...byLink.values()]
+      .filter((i) => !/Fleet and Marine Tracker/i.test(i.title))
+      .sort((a, b) => b.pubDate.localeCompare(a.pubDate))
+  );
+  if (report && report.date > current.asOf) {
+    history.unshift({
+      date: report.date,
+      region: report.region,
+      url: report.url,
+      title: report.title,
+      blurb: report.blurb,
+    });
+    current = {
+      ...current,
+      region: report.region,
+      summary: [report.blurb],
+      asOf: report.date,
+      articleTitle: report.title,
+      articleUrl: report.url,
+      source: "USNI News report",
+    };
+  }
+
   return { ...current, history: history.slice(0, 16) };
 }

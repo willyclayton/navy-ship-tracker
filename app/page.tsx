@@ -47,14 +47,15 @@ function buildStops(history: HistoryEntry[]): MapStop[] {
 }
 
 export default async function Home() {
-  const [status, news, dispatches] = await Promise.all([
+  const [status, allNews, dispatches] = await Promise.all([
     getShipStatus(),
-    getNews(),
+    getNews(30), // wide window so the tension reading sees more than the page shows
     getShipDispatches(3),
   ]);
+  const news = allNews.slice(0, 14);
 
   const stops = status ? buildStops(status.history) : [];
-  const tension = assessTension(news);
+  const tension = assessTension(allNews);
 
   return (
     <main className="wrap">
@@ -69,8 +70,11 @@ export default async function Home() {
             <h2 className="region">{status.region}</h2>
             <p className="asof">
               As of {shortDate(status.asOf)} ·{" "}
-              <a href={status.articleUrl}>USNI Fleet Tracker</a>
+              <a href={status.articleUrl}>{status.source}</a>
             </p>
+            {status.summary[0] && (
+              <p className="position-blurb">{firstSentence(status.summary[0])}</p>
+            )}
           </section>
 
           <ShipMap stops={stops} />

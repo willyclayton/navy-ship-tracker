@@ -117,6 +117,13 @@ a:hover {
   text-decoration-color: var(--muted);
 }
 
+.position-blurb {
+  margin: 10px 0 0;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--ink-light);
+}
+
 /* Map */
 .ship-map {
   width: 100%;
