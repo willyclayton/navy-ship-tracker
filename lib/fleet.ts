@@ -7,7 +7,7 @@ const FEEDS = [
   "https://news.usni.org/category/fleet-tracker/feed",
   "https://news.usni.org/feed",
 ];
-const SHIP_PATTERN = /George Washington/i;
+const SHIP_PATTERN = /George Washington|CVN-?\s?73/i;
 
 export type ShipPhoto = { src: string; caption: string };
 

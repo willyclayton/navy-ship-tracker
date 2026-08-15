@@ -1,5 +1,5 @@
 import { getShipStatus } from "@/lib/fleet";
-import { getNews } from "@/lib/news";
+import { getNews, getShipDispatches } from "@/lib/news";
 
 export const revalidate = 1800; // refresh data every 30 minutes
 
@@ -21,7 +21,11 @@ function shortDate(iso: string): string {
 }
 
 export default async function Home() {
-  const [status, news] = await Promise.all([getShipStatus(), getNews()]);
+  const [status, news, dispatches] = await Promise.all([
+    getShipStatus(),
+    getNews(),
+    getShipDispatches(),
+  ]);
 
   return (
     <main className="wrap">
@@ -76,6 +80,24 @@ export default async function Home() {
         </section>
       )}
 
+      {dispatches.length > 0 && (
+        <section className="dispatches">
+          <h3>From the ship</h3>
+          <ul>
+            {dispatches.map((d) => (
+              <li key={d.link}>
+                <span className="hdate">{shortDate(d.date)}</span>
+                <a href={d.link}>{d.title}</a>
+              </li>
+            ))}
+          </ul>
+          <p className="note">
+            Official photos and stories from George Washington&apos;s public
+            affairs team, via DVIDS.
+          </p>
+        </section>
+      )}
+
       <section className="news">
         <h3>Navy news</h3>
         {news.length === 0 && <p className="summary">No news available.</p>}
@@ -91,6 +113,18 @@ export default async function Home() {
             </li>
           ))}
         </ul>
+      </section>
+
+      <section className="about">
+        <h3>About the ship</h3>
+        <p>
+          USS George Washington (CVN-73) is a Nimitz-class nuclear-powered
+          aircraft carrier and the Navy&apos;s only forward-deployed carrier,
+          homeported at Yokosuka, Japan. She is the flagship of the George
+          Washington Carrier Strike Group in the U.S. 7th Fleet, sailing with
+          Carrier Air Wing 5, the cruiser USS Robert Smalls, and the destroyers
+          USS Benfold and USS Shoup.
+        </p>
       </section>
 
       <footer>
