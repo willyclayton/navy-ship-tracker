@@ -1,17 +1,25 @@
 # USS George Washington Tracker
 
-A small personal site that answers one question every day: **where is USS George Washington (CVN-73) right now?**
+A visual, civilian-friendly tracker for **USS George Washington (CVN-73)**: open the page and see where the carrier is right now on an interactive map, where she's been over recent weeks, how tense things are in the region, and who's on board.
 
-It reads the weekly [USNI News Fleet and Marine Tracker](https://news.usni.org/category/fleet-tracker) to show the carrier's current position, its recent movements over the past ~10 weeks, and a plain-language Navy news reading list.
+## What's on the page
 
-## How it works
+- **Interactive map** — the carrier's track over the last 4/8/12 weeks (or everything on record) on a detailed ocean basemap. Consecutive weeks in the same place collapse into one numbered marker; click any marker for that stretch's dates, a short blurb, and a link to the full report. The current position pulses red; green markers are in-port stays.
+- **Conflict-intensity dial** — a green-to-red gauge scored from recent Navy headlines. Expand "what's moving the needle" to see which stories pushed it up (▲) or down (▼).
+- **This week** — the current region in large type, with the full weekly report tucked behind an expander.
+- **Deployment** — at sea or in port, how long she's been underway, when and where she last docked, and how many weeks of history are tracked.
+- **The ship** — the latest Navy photo, a labeled side-profile diagram, and headline stats (~5,500 people aboard, ~70 aircraft, 1,092 ft, 30+ knots), with full specs on demand.
+- **Who's on board** — all nine Carrier Air Wing 5 squadrons with their aircraft and plain-language roles, plus the cruiser and destroyers sailing with the carrier.
+- **Navy news** — headlines first; tap one to expand a two-sentence summary.
 
-- **Position** — the app pulls the USNI News RSS feeds (which include full article text), finds the latest Fleet Tracker post, and extracts the section covering George Washington: the region heading (e.g. "In the South China Sea"), the paragraph describing the strike group, and the official Navy photo.
-- **History** — the same parsing runs across all tracker posts in the feed archive, producing a week-by-week list of positions.
-- **News** — the USNI News main feed, with summaries trimmed to a sentence or two for quick reading. Items that mention George Washington are flagged.
-- Everything is server-rendered and cached; pages revalidate every 30 minutes, so the site is fast and never hammers USNI's servers.
+## Where the data comes from
 
-No API keys, no database, no client-side JavaScript required.
+- Positions come from the weekly [USNI News Fleet and Marine Tracker](https://news.usni.org/category/fleet-tracker) (an independent public source — not official Navy data). `lib/fleet.ts` parses the RSS feeds, finds the section covering George Washington in each weekly post, and `lib/geo.ts` converts region headings like "In the Philippine Sea" into approximate map coordinates, detecting in-port weeks and passing port-call mentions.
+- The intensity dial (`lib/intensity.ts`) keyword-scores recent USNI headlines; stories mentioning the ship count double.
+- Ship, air wing, and escort facts live in `lib/ship.ts`.
+- Everything is server-rendered and cached with a 30-minute revalidation. The map (Leaflet) is the only client-side JavaScript; all expanders are native `<details>` elements.
+
+No API keys and no database.
 
 ## Local development
 
@@ -22,15 +30,11 @@ npm run dev
 
 Then open http://localhost:3000.
 
-## Deploying on Vercel (auto-rebuild on merge)
+## Deploying on Vercel
 
-1. Go to [vercel.com/new](https://vercel.com/new) and sign in with GitHub.
-2. Import the `navy-ship-tracker` repository. Vercel detects Next.js automatically — no configuration needed. Click **Deploy**.
-3. That's it. From now on, **every merge to `main` triggers a production rebuild and deploy automatically**. Pull requests get their own preview URLs.
-
-Because the page uses incremental static regeneration (30-minute revalidation), the deployed site also refreshes its data on its own between deploys — you don't need to merge anything for the position or news to update.
+Import the repository at [vercel.com/new](https://vercel.com/new) — Next.js is detected automatically. Every merge to `main` deploys, and the 30-minute revalidation keeps positions and news fresh between deploys.
 
 ## Notes
 
-- The Fleet Tracker is published weekly (usually Mondays), so the "as of" date moves in weekly steps. Positions are approximate and based on public data.
-- All data and photos are credited to [USNI News](https://news.usni.org) and the U.S. Navy.
+- The Fleet Tracker is published weekly (usually Mondays), so positions move in weekly steps and are approximate.
+- Map tiles: Esri World Ocean basemap (Esri, GEBCO, NOAA, Garmin). Photos: U.S. Navy via USNI News.

@@ -1,9 +1,14 @@
 :root {
-  --ink: #1b1e23;
-  --muted: #6b7280;
-  --line: #e5e7eb;
-  --accent: #1d4ed8;
-  --bg: #fafaf9;
+  --ink: #101828;
+  --muted: #667085;
+  --line: #e4e7ec;
+  --navy: #0b4f9e;
+  --navy-dark: #0a3060;
+  --bg: #f2f5f9;
+  --card: #ffffff;
+  --green: #16a34a;
+  --amber: #ca8a04;
+  --red: #dc2626;
 }
 
 * {
@@ -12,139 +17,591 @@
 
 body {
   margin: 0;
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   color: var(--ink);
   background: var(--bg);
-  line-height: 1.6;
-}
-
-.wrap {
-  max-width: 640px;
-  margin: 0 auto;
-  padding: 48px 20px 80px;
+  line-height: 1.55;
 }
 
 a {
-  color: var(--accent);
+  color: var(--navy);
 }
 
-.masthead .kicker {
-  font-family: system-ui, sans-serif;
+.wrap {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 28px 16px 72px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* ── Header ─────────────────────────────────────────────── */
+.topbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.kicker {
   font-size: 12px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--muted);
-  margin: 0 0 4px;
+  margin: 0 0 2px;
 }
 
-.masthead h1 {
-  font-size: 34px;
-  margin: 0 0 32px;
+.topbar h1 {
+  font-size: 30px;
+  margin: 0;
+  color: var(--navy-dark);
+  letter-spacing: -0.01em;
 }
 
-.asof {
-  font-family: system-ui, sans-serif;
-  font-size: 13px;
+.status-chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 8px 18px 8px 14px;
+  box-shadow: 0 1px 3px rgb(16 24 40 / 6%);
+}
+
+.status-chip strong {
+  display: block;
+  font-size: 14px;
+}
+
+.status-chip small {
   color: var(--muted);
+  font-size: 12px;
+}
+
+.chip-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex: none;
+}
+
+.status-chip.sea .chip-dot {
+  background: var(--navy);
+  box-shadow: 0 0 0 4px rgb(11 79 158 / 15%);
+}
+
+.status-chip.port .chip-dot {
+  background: var(--green);
+  box-shadow: 0 0 0 4px rgb(22 163 74 / 15%);
+}
+
+/* ── Cards ──────────────────────────────────────────────── */
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 20px 22px;
+  box-shadow: 0 1px 3px rgb(16 24 40 / 6%);
+}
+
+.card-title {
+  font-size: 13px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 0 12px;
+  font-weight: 600;
+}
+
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+@media (max-width: 700px) {
+  .two-col {
+    grid-template-columns: 1fr;
+  }
+}
+
+.big-place {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--navy-dark);
   margin: 0 0 8px;
 }
 
-.region {
-  font-size: 26px;
-  margin: 0 0 12px;
+.blurb {
+  margin: 0 0 10px;
+  font-size: 15px;
+  color: #344054;
 }
 
-.summary {
-  margin: 0 0 12px;
+/* ── Expanders ──────────────────────────────────────────── */
+details {
+  border-top: 1px solid var(--line);
+  padding-top: 8px;
+  margin-top: 8px;
 }
 
+details summary {
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--navy);
+  list-style: none;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+details summary::-webkit-details-marker {
+  display: none;
+}
+
+details summary::after {
+  content: "▾";
+  color: var(--muted);
+  flex: none;
+  transition: transform 0.15s;
+}
+
+details[open] summary::after {
+  transform: rotate(180deg);
+}
+
+.detail-text {
+  font-size: 14px;
+  color: #344054;
+  margin: 10px 0 0;
+}
+
+/* ── Map ────────────────────────────────────────────────── */
+.map-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgb(16 24 40 / 6%);
+}
+
+.map-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--line);
+}
+
+.map-title {
+  font-size: 13px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.range-btns {
+  display: flex;
+  gap: 4px;
+  background: var(--bg);
+  border-radius: 8px;
+  padding: 3px;
+}
+
+.range-btns button {
+  border: none;
+  background: transparent;
+  font: inherit;
+  font-size: 13px;
+  padding: 4px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--muted);
+}
+
+.range-btns button.active {
+  background: var(--card);
+  color: var(--navy-dark);
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgb(16 24 40 / 10%);
+}
+
+.map-body {
+  height: 480px;
+}
+
+@media (max-width: 700px) {
+  .map-body {
+    height: 380px;
+  }
+}
+
+.map-loading {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  background: #e8eef5;
+}
+
+.map-hint {
+  margin: 0;
+  padding: 10px 18px;
+  font-size: 12.5px;
+  color: var(--muted);
+  border-top: 1px solid var(--line);
+}
+
+/* Leaflet marker styles (rendered via divIcon) */
+.ship-marker {
+  position: relative;
+  width: 34px;
+  height: 34px;
+}
+
+.ship-marker .pulse {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: rgb(220 38 38 / 35%);
+  animation: pulse 1.8s ease-out infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.5);
+    opacity: 0.9;
+  }
+
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+.ship-marker .dot-current {
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  background: #dc2626;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  border: 2.5px solid #fff;
+  box-shadow: 0 1px 4px rgb(0 0 0 / 35%);
+}
+
+.dot-past {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--navy);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 30%);
+}
+
+.dot-past.dot-port {
+  background: var(--green);
+}
+
+.pop {
+  font-family: system-ui, sans-serif;
+}
+
+.pop p {
+  margin: 0 0 6px;
+}
+
+.pop-place {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--navy-dark);
+}
+
+.pop-now {
+  background: #dc2626;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 4px;
+  padding: 1px 5px;
+  margin-left: 6px;
+  vertical-align: 1px;
+}
+
+.pop-dates {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.pop-blurb {
+  font-size: 13px;
+  color: #344054;
+}
+
+/* ── Gauge ──────────────────────────────────────────────── */
+.gauge {
+  max-width: 260px;
+  margin: 0 auto 6px;
+  text-align: center;
+}
+
+.gauge-tick {
+  font-size: 9px;
+  fill: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.gauge-readout {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 10px;
+  margin-top: -6px;
+}
+
+.gauge-label {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.gauge-score {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.drivers {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+}
+
+.drivers li {
+  display: flex;
+  gap: 8px;
+  padding: 5px 0;
+  font-size: 14px;
+}
+
+.drivers .up {
+  color: var(--red);
+  flex: none;
+}
+
+.drivers .down {
+  color: var(--green);
+  flex: none;
+}
+
+.drivers a {
+  color: #344054;
+  text-decoration: none;
+}
+
+.drivers a:hover {
+  text-decoration: underline;
+}
+
+/* ── Stats ──────────────────────────────────────────────── */
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.stat {
+  background: var(--bg);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+
+.stat-value {
+  display: block;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--navy-dark);
+}
+
+.stat-label {
+  font-size: 12.5px;
+  color: var(--muted);
+}
+
+.facts {
+  margin-top: 14px;
+}
+
+.specs {
+  margin: 12px 0 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 8px 20px;
+}
+
+.specs div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px dashed var(--line);
+  padding: 5px 0;
+  font-size: 14px;
+}
+
+.specs dt {
+  color: var(--muted);
+}
+
+.specs dd {
+  margin: 0;
+  text-align: right;
+  font-weight: 500;
+}
+
+/* ── Ship photo & diagram ───────────────────────────────── */
 .photo {
-  margin: 20px 0 0;
+  margin: 0 0 16px;
 }
 
 .photo img {
   width: 100%;
-  border-radius: 4px;
+  border-radius: 10px;
   display: block;
 }
 
 .photo figcaption {
-  font-family: system-ui, sans-serif;
   font-size: 12px;
   color: var(--muted);
   margin-top: 6px;
 }
 
-.history,
-.news {
-  border-top: 1px solid var(--line);
-  margin-top: 40px;
-  padding-top: 24px;
+.diagram svg {
+  width: 100%;
+  height: auto;
+  display: block;
 }
 
-h3 {
-  font-family: system-ui, sans-serif;
-  font-size: 13px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin: 0 0 16px;
+.diagram .callout line {
+  stroke: #94a3b8;
+  stroke-width: 1.5;
 }
 
-.history ul,
-.news ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.history li {
-  display: flex;
-  gap: 16px;
-  padding: 6px 0;
-}
-
-.hdate {
-  font-family: system-ui, sans-serif;
-  font-size: 13px;
-  color: var(--muted);
-  min-width: 64px;
-}
-
-.news li {
-  padding: 14px 0;
-  border-bottom: 1px solid var(--line);
-}
-
-.news li a {
-  font-size: 17px;
-  text-decoration: none;
-  color: var(--ink);
-}
-
-.news li a:hover {
-  text-decoration: underline;
-}
-
-.news li p {
-  margin: 4px 0;
+.diagram .callout text {
   font-size: 15px;
-  color: #374151;
+  fill: #475569;
 }
 
-.news .meta {
-  font-family: system-ui, sans-serif;
+.diagram .dim {
+  font-size: 15px;
+  font-weight: 700;
+  fill: var(--navy);
+}
+
+/* ── Squadrons ──────────────────────────────────────────── */
+.squadrons {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.squadron {
+  background: var(--bg);
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.squadron strong {
+  font-size: 13.5px;
+  color: var(--navy-dark);
+}
+
+.squadron span {
+  font-size: 13px;
+}
+
+.squadron small {
   font-size: 12px;
   color: var(--muted);
 }
 
-.news li.ship a {
-  color: var(--accent);
+.escorts {
+  margin: 10px 0 0;
+  padding: 0 0 0 18px;
+  font-size: 14px;
+}
+
+.escorts li {
+  padding: 3px 0;
+}
+
+/* ── News ───────────────────────────────────────────────── */
+.news details {
+  border-top: 1px solid var(--line);
+  margin-top: 0;
+  padding: 10px 0;
+}
+
+.news details:first-child {
+  border-top: none;
+  padding-top: 2px;
+}
+
+.news summary {
+  color: var(--ink);
+  font-weight: 500;
+  font-size: 15px;
+}
+
+.news .news-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.news .news-date {
+  color: var(--muted);
+  font-size: 12.5px;
+  font-weight: 400;
+  flex: none;
+  margin-left: auto;
+}
+
+.gw-tag {
+  background: var(--navy);
+  color: #fff;
+  font-size: 10.5px;
+  font-weight: 700;
+  border-radius: 4px;
+  padding: 1px 6px;
+  flex: none;
+}
+
+.ship-news summary {
+  color: var(--navy-dark);
 }
 
 footer {
-  margin-top: 48px;
-  font-family: system-ui, sans-serif;
-  font-size: 12px;
+  font-size: 12.5px;
   color: var(--muted);
+  padding: 0 4px;
 }
