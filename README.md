@@ -14,7 +14,7 @@ A visual, civilian-friendly tracker for **USS George Washington (CVN-73)**: open
 
 ## Where the data comes from
 
-- Positions come from the weekly [USNI News Fleet and Marine Tracker](https://news.usni.org/category/fleet-tracker) (an independent public source — not official Navy data). `lib/fleet.ts` parses the RSS feeds, finds the section covering George Washington in each weekly post, and `lib/geo.ts` converts region headings like "In the Philippine Sea" into approximate map coordinates, detecting in-port weeks and passing port-call mentions.
+- Positions come from the weekly [USNI News Fleet and Marine Tracker](https://news.usni.org/category/fleet-tracker) and [Western Pacific Pulse](https://news.usni.org/tag/western-pacific-pulse) (independent public sources — not official Navy data). `lib/fleet.ts` parses both series plus mid-week USNI stories about the ship. Pulse map pins (when present) supply lat/lon; otherwise `lib/geo.ts` converts region headings like "In the Strait of Malacca" into approximate map coordinates, detecting in-port weeks and passing port-call mentions. The newest report wins, so a Friday Pulse update is not stuck behind Monday's tracker.
 - The intensity dial (`lib/intensity.ts`) keyword-scores recent USNI headlines; stories mentioning the ship count double.
 - Ship, air wing, and escort facts live in `lib/ship.ts`.
 - Everything is server-rendered and cached with a 30-minute revalidation. The map (Leaflet) is the only client-side JavaScript; all expanders are native `<details>` elements.
@@ -36,5 +36,5 @@ Import the repository at [vercel.com/new](https://vercel.com/new) — Next.js is
 
 ## Notes
 
-- The Fleet Tracker is published weekly (usually Mondays), so positions move in weekly steps and are approximate.
+- The Fleet Tracker is published weekly (usually Mondays) and Western Pacific Pulse later in the week, so the current pin can move mid-week. Positions are still approximate.
 - Map tiles: Esri World Ocean basemap (Esri, GEBCO, NOAA, Garmin). Photos: U.S. Navy via USNI News.

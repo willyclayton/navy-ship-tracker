@@ -49,7 +49,10 @@ export default async function Home() {
               <strong>
                 {deployment.atSea ? "At sea" : "In port"} · {current.placeName}
               </strong>
-              <small>as of {fmtDate(status!.asOf)}</small>
+              <small>
+                as of {fmtDate(status!.asOf)}
+                {status!.sourceLabel ? ` · ${status!.sourceLabel}` : ""}
+              </small>
             </div>
           </div>
         )}
@@ -81,7 +84,9 @@ export default async function Home() {
                 <p className="detail-text" key={i}>{p}</p>
               ))}
               <p className="detail-text">
-                <a href={status.articleUrl}>Read on USNI News →</a>
+                <a href={status.articleUrl}>
+                  {status.articleTitle} →
+                </a>
               </p>
             </details>
           </section>
@@ -228,12 +233,17 @@ export default async function Home() {
 
       <footer>
         <p>
-          Positions from the weekly{" "}
+          Positions from{" "}
           <a href="https://news.usni.org/category/fleet-tracker">
-            USNI News Fleet and Marine Tracker
+            USNI News Fleet Tracker
           </a>{" "}
-          (an independent, public source — not official Navy data). Positions
-          are approximate. Photos: U.S. Navy.
+          and{" "}
+          <a href="https://news.usni.org/tag/western-pacific-pulse">
+            Western Pacific Pulse
+          </a>{" "}
+          (independent public sources — not official Navy data). Current
+          position uses the newest report; Pulse map pins are used when
+          available. Positions are approximate. Photos: U.S. Navy.
         </p>
       </footer>
     </main>

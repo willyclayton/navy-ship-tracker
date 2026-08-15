@@ -28,7 +28,10 @@ const REGIONS: Record<string, Point> = {
   "red sea": { lat: 19, lng: 39 },
   "gulf of aden": { lat: 12.5, lng: 47 },
   "gulf of thailand": { lat: 9.5, lng: 101.5 },
-  "strait of malacca": { lat: 3.5, lng: 100 },
+  "strait of malacca": { lat: 4.66, lng: 99.55 },
+  "malacca strait": { lat: 4.66, lng: 99.55 },
+  "singapore strait": { lat: 1.22, lng: 103.85 },
+  "taiwan strait": { lat: 24.3, lng: 119.5 },
   "luzon strait": { lat: 20.5, lng: 121 },
   "solomon sea": { lat: -8, lng: 153 },
   "mediterranean sea": { lat: 35, lng: 18 },
@@ -76,11 +79,80 @@ function normalizeRegion(region: string): string {
   return region
     .replace(/\u00a0/g, " ")
     .replace(/^in the\s+/i, "")
+    .replace(/^near\s+/i, "")
+    .replace(/^at\s+/i, "")
     .replace(/^in\s+/i, "")
     .replace(/[.,]+$/g, "")
     .replace(/\s+/g, " ")
     .trim()
     .toLowerCase();
+}
+
+const REGION_ALIASES: [RegExp, string][] = [
+  [/malacca strait|strait of malacca/i, "strait of malacca"],
+  [/singapore strait/i, "singapore strait"],
+  [/taiwan strait/i, "taiwan strait"],
+];
+
+const WATER_BODY = /\b(sea|strait|ocean|gulf|bay)\b/i;
+
+function lookupRegion(key: string): Point | null {
+  if (REGIONS[key]) return REGIONS[key];
+  for (const [re, alias] of REGION_ALIASES) {
+    if (re.test(key) && REGIONS[alias]) return REGIONS[alias];
+  }
+  return null;
+}
+
+/** Title-case a region key without capitalizing of/the/and. */
+export function prettyRegion(keyOrHeading: string): string {
+  const key = normalizeRegion(keyOrHeading);
+  if (!key) return keyOrHeading;
+  return key
+    .replace(/\b\w+/g, (w) =>
+      /^(of|the|and)$/i.test(w) ? w.toLowerCase() : w[0].toUpperCase() + w.slice(1)
+    )
+    .replace(/^./, (c) => c.toUpperCase());
+}
+
+/**
+ * Find a known sea/strait in free text. Prefers "is/was in the X" (current
+ * position) over transit/destination phrasing, so "in the Strait of Malacca
+ * ... to enter the Andaman Sea" stays Malacca — matching USNI's own pin.
+ */
+export function inferRegionFromText(text: string): string | null {
+  const wasIn =
+    /(?:is|was|were)\s+(?:currently\s+)?in\s+(?:the\s+)?([^.,;]+)/gi;
+  let found: string | null = null;
+  let match: RegExpExecArray | null;
+  while ((match = wasIn.exec(text)) !== null) {
+    const hit = matchRegionName(match[1]);
+    if (hit) found = hit;
+  }
+  if (found) return found;
+
+  const moved =
+    /(?:operating in|transited(?:\s+\w+)?\s+(?:to|into)|enter(?:ed)?(?:\s+the)?)\s+(?:the\s+)?([^.,;]+)/gi;
+  while ((match = moved.exec(text)) !== null) {
+    const hit = matchRegionName(match[1]);
+    if (hit) found = hit;
+  }
+  if (found) return found;
+
+  return matchRegionName(text);
+}
+
+function matchRegionName(haystack: string): string | null {
+  const lower = haystack.toLowerCase();
+  for (const [re, alias] of REGION_ALIASES) {
+    if (re.test(haystack)) return alias;
+  }
+  let best: string | null = null;
+  for (const key of Object.keys(REGIONS)) {
+    if (!WATER_BODY.test(key)) continue;
+    if (lower.includes(key) && (!best || key.length > best.length)) best = key;
+  }
+  return best;
 }
 
 export type Located = {
@@ -90,7 +162,11 @@ export type Located = {
 };
 
 /** Turn a tracker region heading + blurb into an approximate map position. */
-export function locate(region: string, blurb: string): Located {
+export function locate(
+  region: string,
+  blurb: string,
+  exact?: Point | null
+): Located {
   const key = normalizeRegion(region);
   const inPort = IN_PORT_RE.test(blurb) || key === "japan";
 
@@ -99,10 +175,18 @@ export function locate(region: string, blurb: string): Located {
     if (port) return { point: port.point, placeName: port.name, inPort: true };
   }
 
-  const point = REGIONS[key] ?? null;
-  const placeName = key
-    ? key.replace(/\b\w/g, (c) => c.toUpperCase())
-    : region;
+  if (exact) {
+    return {
+      point: exact,
+      placeName: prettyRegion(key || region),
+      inPort,
+    };
+  }
+
+  const inferred = lookupRegion(key) ? key : inferRegionFromText(blurb);
+  const resolvedKey = (lookupRegion(key) ? key : inferred) ?? key;
+  const point = lookupRegion(resolvedKey) ?? lookupRegion(key);
+  const placeName = prettyRegion(resolvedKey || region);
   return { point, placeName, inPort };
 }
 
@@ -134,7 +218,7 @@ export function buildStops(history: HistoryEntry[]): Stop[] {
 
   for (const entry of chronological) {
     const blurb = entry.summary.join(" ");
-    const loc = locate(entry.region, blurb);
+    const loc = locate(entry.region, blurb, entry.point);
     if (!loc.point) continue;
 
     const mention = loc.inPort ? null : findPortCallMention(blurb);

@@ -48,8 +48,9 @@ export default function MapPanel({ stops }: { stops: Stop[] }) {
         <ShipMap stops={visible} />
       </div>
       <p className="map-hint">
-        Click a numbered dot for that week&apos;s report. Positions are
-        approximate, from the weekly USNI News Fleet Tracker.
+        Click a numbered dot for that week&apos;s report. Current position
+        uses the newest USNI Pulse or Fleet Tracker; Pulse map pins when
+        available.
       </p>
     </div>
   );
