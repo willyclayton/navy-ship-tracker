@@ -409,6 +409,13 @@ details[open] summary::after {
   flex: none;
 }
 
+.driver-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
 .drivers a {
   color: #344054;
   text-decoration: none;
@@ -416,6 +423,11 @@ details[open] summary::after {
 
 .drivers a:hover {
   text-decoration: underline;
+}
+
+.driver-meta {
+  font-size: 12px;
+  color: var(--muted);
 }
 
 .intensity-when {

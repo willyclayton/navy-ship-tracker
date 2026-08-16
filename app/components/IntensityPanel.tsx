@@ -43,8 +43,8 @@ export default function IntensityPanel({
       <Gauge intensity={snap} />
       <p className="blurb">{snap.headline}</p>
       <p className="intensity-when">
-        {isNow ? "Now" : shortDate(snap.asOf)} · last 14 days of Navy headlines
-        · 100 = all-out war
+        {isNow ? "Now" : shortDate(snap.asOf)} · last 14 days, and unfinished
+        wars stay on the dial · 100 = all-out war
       </p>
       {history.length > 1 && (
         <div className="intensity-scrub">
@@ -91,7 +91,13 @@ export default function IntensityPanel({
                 <span className={d.weight > 0 ? "up" : "down"}>
                   {d.weight > 0 ? "▲" : "▼"}
                 </span>
-                <a href={d.link}>{d.title}</a>
+                <div className="driver-body">
+                  <a href={d.link}>{d.title}</a>
+                  <span className="driver-meta">
+                    {shortDate(d.date)}
+                    {d.why ? ` · ${d.why}` : ""}
+                  </span>
+                </div>
               </li>
             ))}
           </ul>
