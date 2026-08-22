@@ -1,3 +1,4 @@
+import { REVALIDATE_SECONDS } from "./cache";
 import { decodeEntities, stripTags } from "./text";
 
 export type FeedItem = {
@@ -27,7 +28,7 @@ const FETCH_HEADERS = {
 export async function fetchFeed(
   url: string,
   source: string,
-  revalidateSeconds = 1800
+  revalidateSeconds = REVALIDATE_SECONDS
 ): Promise<FeedItem[]> {
   try {
     const res = await fetch(url, {
@@ -62,7 +63,7 @@ export async function fetchFeed(
 
 export async function fetchPage(
   url: string,
-  revalidateSeconds = 1800
+  revalidateSeconds = REVALIDATE_SECONDS
 ): Promise<string | null> {
   try {
     const res = await fetch(url, {
@@ -78,7 +79,7 @@ export async function fetchPage(
 
 export async function fetchJson<T>(
   url: string,
-  revalidateSeconds = 1800
+  revalidateSeconds = REVALIDATE_SECONDS
 ): Promise<T | null> {
   try {
     const res = await fetch(url, {

@@ -54,7 +54,6 @@ async function usniPhotos(): Promise<ShipPhoto[]> {
     [1, 2, 3, 4].map((page) =>
       fetchJson<WpMedia[]>(
         `https://news.usni.org/wp-json/wp/v2/media?search=George%20Washington%20CVN-73&per_page=20&page=${page}&_fields=source_url,alt_text,caption,date,title,media_details`,
-        3600
       )
     )
   );
@@ -84,7 +83,6 @@ async function dvidsPhotos(): Promise<ShipPhoto[]> {
     [1, 2, 3].map((page) =>
       fetchPage(
         `https://www.dvidshub.net/search/?filter[unit]=USSGW&filter[type]=image&page=${page}`,
-        3600
       )
     )
   );

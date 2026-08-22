@@ -7,8 +7,6 @@
   --bg: #f2f5f9;
   --card: #ffffff;
   --green: #16a34a;
-  --amber: #ca8a04;
-  --red: #dc2626;
 }
 
 * {
@@ -114,18 +112,6 @@ a {
   color: var(--muted);
   margin: 0 0 12px;
   font-weight: 600;
-}
-
-.two-col {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 18px;
-}
-
-@media (max-width: 700px) {
-  .two-col {
-    grid-template-columns: 1fr;
-  }
 }
 
 .big-place {
@@ -352,113 +338,6 @@ details[open] summary::after {
 .pop-blurb {
   font-size: 13px;
   color: #344054;
-}
-
-/* ── Gauge ──────────────────────────────────────────────── */
-.gauge {
-  max-width: 260px;
-  margin: 0 auto 6px;
-  text-align: center;
-}
-
-.gauge-tick {
-  font-size: 9px;
-  fill: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.gauge-readout {
-  display: flex;
-  align-items: baseline;
-  justify-content: center;
-  gap: 10px;
-  margin-top: -6px;
-}
-
-.gauge-label {
-  font-size: 20px;
-  font-weight: 700;
-}
-
-.gauge-score {
-  font-size: 13px;
-  color: var(--muted);
-}
-
-.drivers {
-  list-style: none;
-  margin: 10px 0 0;
-  padding: 0;
-}
-
-.drivers li {
-  display: flex;
-  gap: 8px;
-  padding: 5px 0;
-  font-size: 14px;
-}
-
-.drivers .up {
-  color: var(--red);
-  flex: none;
-}
-
-.drivers .down {
-  color: var(--green);
-  flex: none;
-}
-
-.driver-body {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  min-width: 0;
-}
-
-.drivers a {
-  color: #344054;
-  text-decoration: none;
-}
-
-.drivers a:hover {
-  text-decoration: underline;
-}
-
-.driver-meta {
-  font-size: 12px;
-  color: var(--muted);
-}
-
-.intensity-when {
-  margin: 0 0 10px;
-  font-size: 13px;
-  color: var(--muted);
-  text-align: center;
-}
-
-.intensity-scrub {
-  margin: 8px 0 4px;
-}
-
-.intensity-spark {
-  width: 100%;
-  height: 36px;
-  display: block;
-}
-
-.intensity-scrub input[type="range"] {
-  width: 100%;
-  margin: 4px 0 0;
-  accent-color: var(--navy);
-  cursor: pointer;
-}
-
-.intensity-ends {
-  display: flex;
-  justify-content: space-between;
-  font-size: 12px;
-  color: var(--muted);
 }
 
 /* ── Photo strip ────────────────────────────────────────── */

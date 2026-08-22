@@ -1,3 +1,4 @@
+import { REVALIDATE_SECONDS } from "./cache";
 import { fetchPage } from "./rss";
 
 export type PulsePin = {
@@ -56,7 +57,7 @@ export function parsePulseMap(html: string): PulsePin | null {
 
 export async function fetchPulsePin(
   articleHtml: string,
-  revalidateSeconds = 1800
+  revalidateSeconds = REVALIDATE_SECONDS
 ): Promise<PulsePin | null> {
   const url = pulseMapUrl(articleHtml);
   if (!url) return null;

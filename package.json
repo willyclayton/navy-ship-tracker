@@ -6,8 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "test": "node --experimental-strip-types --test lib/intensity.test.ts"
+    "lint": "next lint"
   },
   "dependencies": {
     "leaflet": "^1.9.4",

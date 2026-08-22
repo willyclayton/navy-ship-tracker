@@ -253,8 +253,8 @@ function mergeHistory(entries: HistoryEntry[]): HistoryEntry[] {
 
 async function loadRawItems(): Promise<RawItem[]> {
   const [feedXmls, wpPages] = await Promise.all([
-    Promise.all(FEEDS.map((url) => fetchPage(url, 1800))),
-    Promise.all(WP_ENDPOINTS.map((url) => fetchJson<WpPost[]>(url, 1800))),
+    Promise.all(FEEDS.map((url) => fetchPage(url))),
+    Promise.all(WP_ENDPOINTS.map((url) => fetchJson<WpPost[]>(url))),
   ]);
 
   const byLink = new Map<string, RawItem>();
