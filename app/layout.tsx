@@ -4,7 +4,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "USS George Washington — Live Tracker",
   description:
-    "Interactive map of USS George Washington (CVN-73): where she is, where she's been, a conflict-intensity dial, and the ship's crew and air wing at a glance.",
+    "Interactive map of USS George Washington (CVN-73): where she is, where she's been, and the ship's crew and air wing at a glance.",
 };
 
 export default function RootLayout({

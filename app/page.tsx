@@ -1,17 +1,15 @@
 import { getShipStatus } from "@/lib/fleet";
-import { getNews, getNewsArchive } from "@/lib/news";
+import { getNews } from "@/lib/news";
 import { buildStops } from "@/lib/geo";
-import { computeIntensityHistory } from "@/lib/intensity";
 import { SHIP, SHIP_LEADERS, ESCORTS, deriveDeployment } from "@/lib/ship";
 import { getShipPhotos } from "@/lib/photos";
 import { summarize } from "@/lib/text";
 import MapPanel from "./components/MapPanel";
-import IntensityPanel from "./components/IntensityPanel";
 import CarrierDiagram from "./components/CarrierDiagram";
 import PhotoStrip from "./components/PhotoStrip";
 import Squadrons from "./components/Squadrons";
 
-export const revalidate = 1800; // refresh data every 30 minutes
+export const revalidate = 86400; // daily fallback; Vercel Cron rebuilds every morning
 
 function fmtDate(iso: string): string {
   return new Date(iso).toLocaleDateString("en-US", {
@@ -31,16 +29,14 @@ function shortDate(iso: string): string {
 }
 
 export default async function Home() {
-  const [status, news, archive, photos] = await Promise.all([
+  const [status, news, photos] = await Promise.all([
     getShipStatus(),
     getNews(14),
-    getNewsArchive(),
     getShipPhotos(),
   ]);
   const stops = status ? buildStops(status.history) : [];
   const current = stops[stops.length - 1] ?? null;
   const deployment = deriveDeployment(stops);
-  const intensityHistory = computeIntensityHistory(archive);
 
   return (
     <main className="wrap">
@@ -79,29 +75,25 @@ export default async function Home() {
         </div>
       )}
 
-      {/* ── This week + intensity ──────────────────────────── */}
-      <div className="two-col">
-        {status && (
-          <section className="card">
-            <h2 className="card-title">This week</h2>
-            <p className="big-place">{current?.placeName ?? status.region}</p>
-            <p className="blurb">{summarize(status.summary.join(" "), 200)}</p>
-            <details>
-              <summary>Full report</summary>
-              {status.summary.map((p, i) => (
-                <p className="detail-text" key={i}>{p}</p>
-              ))}
-              <p className="detail-text">
-                <a href={status.articleUrl}>
-                  {status.articleTitle} →
-                </a>
-              </p>
-            </details>
-          </section>
-        )}
-
-        <IntensityPanel history={intensityHistory} />
-      </div>
+      {/* ── This week ──────────────────────────────────────── */}
+      {status && (
+        <section className="card">
+          <h2 className="card-title">This week</h2>
+          <p className="big-place">{current?.placeName ?? status.region}</p>
+          <p className="blurb">{summarize(status.summary.join(" "), 200)}</p>
+          <details>
+            <summary>Full report</summary>
+            {status.summary.map((p, i) => (
+              <p className="detail-text" key={i}>{p}</p>
+            ))}
+            <p className="detail-text">
+              <a href={status.articleUrl}>
+                {status.articleTitle} →
+              </a>
+            </p>
+          </details>
+        </section>
+      )}
 
       {/* ── Deployment status ──────────────────────────────── */}
       {stops.length > 0 && (
@@ -238,10 +230,10 @@ export default async function Home() {
           <a href="https://news.usni.org/tag/western-pacific-pulse">
             Western Pacific Pulse
           </a>{" "}
-          (independent public sources — not official Navy data). Aircraft
-          counts are typical embarked numbers; named aircrew are publicly
-          listed leaders only. Photos: U.S. Navy via USNI News, DVIDS, and
-          Wikimedia Commons.
+          (independent public sources — not official Navy data). Positions
+          and news refresh every morning. Aircraft counts are typical
+          embarked numbers; named aircrew are publicly listed leaders only.
+          Photos: U.S. Navy via USNI News, DVIDS, and Wikimedia Commons.
         </p>
       </footer>
     </main>
